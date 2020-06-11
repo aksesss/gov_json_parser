@@ -5,7 +5,8 @@ import time
 import argparse
 import urllib.request
 import os
-
+import os.path
+import sys
 
 def getResponse(url):
     operUrl = urllib.request.urlopen(url)
@@ -86,6 +87,11 @@ if ('limit' in args.keys()):
         recordCount = getRecordCount(URL)
     else:
         recordCount = min(args['limit'], getRecordCount(URL)) 
+
+if (os.path.isfile(FILE_PATH) and (start_page == 1)):
+    sys.exit('The file '+ str(FILE_NAME) + ' exists\n' +
+            'Please change file name or' +
+            'if you want append text, specificate [-P] [--frompage] argument'
 
 '''    
 if ('datacode' in args.keys()):

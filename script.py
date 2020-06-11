@@ -22,16 +22,20 @@ def getRecordCount(url):
     js_data = getResponse(url + '?Pagenum={}&PageSize={}'.format(1, 1))
     return(js_data['recordCount'])
 
-def fileRowsCount(file_path, enc='utf8'):
-    return (sum([1 for line in open(file_path, encoding=enc)]))
-    
 
-
+encoding = 'utf8'
 DATA_PATH = 'data'
 MAX_PAGE_SIZE = 1000
 
 
 ap = argparse.ArgumentParser()
+'''
+ap.add_argument('-u', '--url',
+                help='url of json load data API using Pagenum and PageSize url arguments', 
+                nargs='?', 
+                default=URL, 
+                type=str)
+'''
 
 ap.add_argument('-c', '--datacode',
                 help='Specificates open source data code\nYou shouldn\'t specificate URL [-u][-url]', 
@@ -56,19 +60,12 @@ ap.add_argument('-l', '--limit',
                 nargs='?', 
                 default=-1, 
                 type=int)
-ap.add_argument('-s', '--startpage',
+ap.add_argument('-P', '--frompage',
                 help='from what page download data',
                 required=False,
                 nargs='?', 
                 default=1, 
                 type=int)
-ap.add_argument('-e', '--encoding',
-                help='Data encoding: urf8, 1251 (cp1251)',
-                required=False,
-                nargs='?', 
-                default='utf8', 
-                type=str)
-
 
 
 try:
@@ -79,55 +76,22 @@ except ():
 if (args['filename'] == ''):
     FILE_NAME = args['datacode'] + '.json'
         
-encoding = args['encoding']
 
+start_page = args['frompage']
 URL = 'http://budget.gov.ru/epbs/registry/%s/data'%(args['datacode'])
-FILE_PATH = args['path'] + '/' + FILE_NAME
-start_page = args['startpage']
+FILE_PATH = args['path']
+FILE_PATH = FILE_PATH + '/' + FILE_NAME
 
-if (args['limit'] < 1):
-    recordCount = getRecordCount(URL)
-else:
-    recordCount = min(args['limit'], getRecordCount(URL)) 
+if ('limit' in args.keys()):
+    if (args['limit'] < 1):
+        recordCount = getRecordCount(URL)
+    else:
+        recordCount = min(args['limit'], getRecordCount(URL)) 
 
-record_count_in_url = getRecordCount(URL)
-    
-print('Using URL : {}'.format(URL))
-print('\tN rows from url : {}'.format(record_count_in_url))
-print('\tn pages from url: {}'.format(math.ceil(record_count_in_url/MAX_PAGE_SIZE)))
-    
-    
 if (os.path.isfile(FILE_PATH) and (start_page == 1)):
-    
-    print('The file {} exists\n\tN records in file : {}'.format(FILE_NAME, fileRowsCount(FILE_PATH, encoding)))
-    pages_in_file = math.ceil(fileRowsCount(FILE_PATH, encoding)/1000)
-    print('\tn pages in file   : {}'.format(pages_in_file))
-    while True:
-        update_question = input('Append data? [y, n]: ')
-        if (update_question=='y'):
-            start_page = int(input('From what page from what u want download: '))
-            
-            if (start_page <= pages_in_file):
-                warning = input('WARNING!: are u shure? Data may be doubled [y, n]: ')
-                if (warning != 'y'):
-                    sys.exit()
-
-            break
-        elif (update_question=='n'):
-            delete_question = input('Do you want rewrite to file[y, n]: ')
-            if (delete_question == 'y'):
-                os.remove(FILE_PATH)
-                break
-            else:
-                sys.exit()
-        else:
-            sys.exit()
-
-            
-
-
-
-
+    sys.exit('The file '+ str(FILE_NAME) + ' exists\n' +
+            'Please change file name or\n' +
+            'if you want append text, specificate [-P] [--frompage] argument')
 
 '''    
 if ('datacode' in args.keys()):
@@ -138,6 +102,7 @@ if ('path' in args.keys()):
     FILE_PATH = args['path']
 '''
 
+print('Using URL : {}'.format(URL))        
 print('Turget file path: {}'.format(FILE_PATH))
         
 start_time = time.time()
@@ -174,20 +139,8 @@ try:
                 json.dump(record, the_file, ensure_ascii=False)
                 the_file.write(',\n')
         print('{} items loaded\t Time: {}'.format(i, time.time() - start_time))
-    print('\nLoading ended')
-    print('\tLoaded records        : {}'.format(i))
-    print('\tTotal records in url  : {}'.format(record_count_in_url))
-    print('\tTotal records in file : {}'.format(fileRowsCount(FILE_PATH, encoding)))
-
-except KeyboardInterrupt:
-    print('\nLoading stopped')
-    print('\tLoaded records        : {}\n'.format(i))
-    print('\tTotal records in url  : {}'.format(record_count_in_url))
-    print('\tTotal records in file : {}'.format(fileRowsCount(FILE_PATH, encoding)))
-
 except Exception as e:
     print(str(e))
-
 finally:
     with open(FILE_PATH, 'rb+') as the_file:
         the_file.seek(-3, os.SEEK_END)

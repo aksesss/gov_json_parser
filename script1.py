@@ -97,6 +97,7 @@ print('\tN rows from url : {}'.format(record_count_in_url))
 print('\tn pages from url: {}'.format(math.ceil(record_count_in_url/MAX_PAGE_SIZE)))
     
     
+    
 if (os.path.isfile(FILE_PATH) and (start_page == 1)):
     
     print('The file {} exists\n\tN records in file : {}'.format(FILE_NAME, fileRowsCount(FILE_PATH, encoding)))

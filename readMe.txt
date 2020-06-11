@@ -12,3 +12,6 @@ env/python.exe .\script1.py -c '7710568760-KBKSOURCETYP' -p 'C:\Users\user\Deskt
 
 #get all records
 env/python.exe .\script1.py -c '7710568760-KBKSOURCETYP' -p 'C:\Users\als\Desktop\gos_data\TEST1.json'
+
+
+env\python.exe script1.py -c '7710568760-BUDGETCLASGABS'

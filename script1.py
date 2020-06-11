@@ -59,6 +59,12 @@ ap.add_argument('-l', '--limit',
                 nargs='?', 
                 default=-1, 
                 type=int)
+ap.add_argument('-P', '--frompage',
+                help='from what page download data',
+                required=False,
+                nargs='?', 
+                default=1, 
+                type=int)
 
 
 try:
@@ -70,7 +76,7 @@ if (args['filename'] == ''):
     FILE_NAME = args['datacode'] + '.json'
         
 
-
+start_page = args['frompage']
 URL = 'http://budget.gov.ru/epbs/registry/%s/data'%(args['datacode'])
 FILE_PATH = args['path']
 FILE_PATH = FILE_PATH + '/' + FILE_NAME
@@ -98,16 +104,23 @@ print("Start loading...")
 i = 0
 
 
-#for page_num in range(1, recordCount):
     
 n_pages = math.ceil(recordCount/MAX_PAGE_SIZE)
 
 
 try:
-    with open(FILE_PATH, 'a', encoding=encoding) as the_file:
-        the_file.write('{"data": [')
+    if (start_page == 1):
+        with open(FILE_PATH, 'a', encoding=encoding) as the_file:
+            the_file.write('{"data": [')
+    else:
+        with open(FILE_PATH, 'rb+') as the_file:
+            the_file.seek(-2, os.SEEK_END)
+            the_file.truncate()
+        with open(FILE_PATH, 'a', encoding=encoding) as the_file:
+            the_file.write(',\n')
+
         
-    for page_num in range(1, n_pages+1):
+    for page_num in range(start_page, n_pages+1):
         print('Step {} of {}:\t'.format(page_num, n_pages), end='\t')
         js_data = getResponse(URL + '?Pagenum={}&PageSize={}'.format(page_num, MAX_PAGE_SIZE))
         data = js_data['data']    

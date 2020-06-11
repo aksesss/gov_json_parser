@@ -90,8 +90,8 @@ if ('limit' in args.keys()):
 
 if (os.path.isfile(FILE_PATH) and (start_page == 1)):
     sys.exit('The file '+ str(FILE_NAME) + ' exists\n' +
-            'Please change file name or' +
-            'if you want append text, specificate [-P] [--frompage] argument'
+            'Please change file name or\n' +
+            'if you want append text, specificate [-P] [--frompage] argument')
 
 '''    
 if ('datacode' in args.keys()):
